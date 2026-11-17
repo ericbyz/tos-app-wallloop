@@ -1,0 +1,24 @@
+# Upstream project pin — single source of truth for reproducible builds.
+# Parsed by scripts/fetch_upstream.sh and build.sh (KEY=VALUE, no spaces).
+# Bump with: scripts/bump_upstream.sh <new-version>
+#
+# WallLoop is an ORIGINAL app: the "upstream" is our own source repository,
+# which publishes cross-compiled release binaries (CGO_ENABLED=0, static).
+# For local builds without a published release, set UPSTREAM_DIST_DIR to a
+# directory containing the two pinned asset files; fetch_upstream.sh will
+# use it instead of downloading from GitHub.
+
+UPSTREAM_REPO=https://github.com/ericbyz/wallloop
+UPSTREAM_LICENSE=Apache-2.0
+
+# Pinned release tag and version (must equal config.ini "version")
+UPSTREAM_TAG=v0.1.0
+UPSTREAM_VERSION=0.1.0
+
+# Pinned release assets per architecture (linux, CGO_ENABLED=0 static Go binaries)
+ASSET_x86_64=wallloop_0.1.0_linux_amd64.tar.gz
+ASSET_aarch64=wallloop_0.1.0_linux_arm64.tar.gz
+
+# SHA256 of each pinned asset (verified by fetch_upstream.sh)
+SHA256_x86_64=c88d9a7cba3b06c96f7526297eda770b829e7900c2fb5a3d3dda329499abcb7b
+SHA256_aarch64=5174ab75730cd0bf630a9e1e149666a40c41126b2d846a3f742ed753a93ef01e

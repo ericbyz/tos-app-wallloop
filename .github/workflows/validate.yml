@@ -1,0 +1,52 @@
+name: Validate Package Metadata
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate config.ini + lang + icon (TOS review rules)
+        run: python3 scripts/validate.py
+
+      - name: Verify upstream pin consistency
+        run: |
+          python3 - <<'PYEOF'
+          import json, re, sys
+
+          pin = {}
+          for line in open("UPSTREAM", encoding="utf-8"):
+              line = line.strip()
+              if not line or line.startswith("#"):
+                  continue
+              k, _, v = line.partition("=")
+              pin[k] = v
+
+          cfg = json.load(open("config.ini", encoding="utf-8"))
+          problems = []
+
+          if cfg["version"] != pin.get("UPSTREAM_VERSION"):
+              problems.append(
+                  f"config.ini version {cfg['version']} != UPSTREAM {pin.get('UPSTREAM_VERSION')}"
+              )
+          for plat, tokens in (("x86_64", ("x86_64", "x64")), ("aarch64", ("aarch64", "arm64"))):
+              sha = pin.get(f"SHA256_{plat}", "")
+              if not re.fullmatch(r"[0-9a-f]{64}", sha):
+                  problems.append(f"SHA256_{plat} is not a pinned 64-hex digest: {sha!r}")
+              asset = pin.get(f"ASSET_{plat}", "")
+              if not any(t in asset for t in tokens):
+                  problems.append(f"ASSET_{plat} does not contain a platform token: {asset!r}")
+          if problems:
+              print("\n".join(problems), file=sys.stderr)
+              sys.exit(1)
+          print(f"UPSTREAM pin ok: v{pin['UPSTREAM_VERSION']} ({pin['UPSTREAM_TAG']})")
+          PYEOF
+
+      - name: Check UPSTREAM pin has no unresolved placeholders
+        run: |
+          ! grep -q "REPLACE_WITH_UPSTREAM_SHA256" UPSTREAM

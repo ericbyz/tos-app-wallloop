@@ -1,0 +1,35 @@
+#!/bin/bash
+# Post-installation script — runs after the package is installed
+set -e
+
+APPID="wallloop"
+APP_DIR="/usr/local/${APPID}"
+
+# Create dedicated system user (the platform may create it as well; keep idempotent)
+if ! id -u "${APPID}" > /dev/null 2>&1; then
+    useradd --system --no-create-home --shell /usr/sbin/nologin "${APPID}" 2>/dev/null || true
+fi
+
+# Set permissions
+chown -R "${APPID}:${APPID}" "${APP_DIR}" 2>/dev/null || true
+
+# Persistent data directory for wallloop (ADWALL_DATA_DIR)
+mkdir -p "/var/lib/${APPID}" 2>/dev/null || true
+chown -R "${APPID}:${APPID}" "/var/lib/${APPID}" 2>/dev/null || true
+
+# $1 = "configure" (also on upgrade), $2 = the version that was installed before
+case "$1" in
+    configure)
+        if [ -n "$2" ]; then
+            echo "${APPID}: upgrading from version $2 (user data in /var/lib/${APPID} is preserved)"
+        fi
+        systemctl daemon-reload 2>/dev/null || true
+        systemctl enable "${APPID}.service" 2>/dev/null || true
+        systemctl restart "${APPID}.service" 2>/dev/null || true  # 升级时应用新二进制
+        ;;
+    *)
+        ;;
+esac
+
+echo "${APPID} installed successfully."
+exit 0

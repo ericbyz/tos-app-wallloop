@@ -1,0 +1,17 @@
+Package: wallloop
+Version: 0.1.0
+Architecture: amd64
+Section: web
+Priority: optional
+Maintainer: ericbyz <ericbyz@users.noreply.github.com>
+Depends: systemd
+Description: NAS dynamic wallpaper service (Wallpaper-Engine class, original)
+ WallLoop is an original, self-hosted dynamic wallpaper service for TOS.
+ It stores a wallpaper library (video/image) on the NAS, plays it fullscreen
+ in any browser at http://<NAS>:18240/play (TV/tablet/phone, read-only public
+ surface), rotates the playlist on an interval or by day/night time slots,
+ and synthesizes demo wallpapers locally with the factory ffmpeg (no bundled
+ or CDN media assets). A Chinese-first original admin panel lives behind the
+ TOS desktop floating window (admin surface on 127.0.0.1 only, nginx-proxied
+ at /wallloop/). Client API: GET /api/v1/now.
+ Source and reproducible build: https://github.com/ericbyz/wallloop

@@ -1,0 +1,44 @@
+[Unit]
+Description=WallLoop - NAS Dynamic Wallpaper Service (TOS)
+After=network.target
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+[Service]
+Type=simple
+User=wallloop
+Group=wallloop
+WorkingDirectory=/usr/local/wallloop
+EnvironmentFile=/usr/local/wallloop/wallloop.env
+ExecStart=/usr/local/wallloop/bin/wallloop run
+TimeoutStartSec=30
+TimeoutStopSec=10
+
+# Public surface binds 0.0.0.0:18240 (unprivileged port, no capabilities needed)
+# NOTE: MemoryDenyWriteExecute is intentionally ABSENT — it crashes the Go
+# runtime (SIGSEGV) on TOS 6.12 kernels (go2rtc/owncast lesson, runbook).
+# Security hardening (TOS 7 review requires NoNewPrivileges/ProtectSystem/ProtectHome;
+# Restart= is intentionally omitted — service lifecycle is managed by the platform)
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+LockPersonality=true
+RestrictSUIDSGID=true
+RemoveIPC=true
+SystemCallArchitectures=native
+
+# Wallpaper library, thumbnails and state.json live under WALLLOOP_DATA_DIR only.
+# PrivateTmp does not block ffmpeg (factory /usr/bin/ffmpeg reads/writes within
+# ReadWritePaths + tmp), exec of ffmpeg is allowed by default.
+ReadWritePaths=/var/lib/wallloop
+
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

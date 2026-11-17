@@ -1,0 +1,77 @@
+name: Build Deb Package
+
+on:
+  push:
+    tags:
+      - "v*"
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        arch: [x86_64, aarch64]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev lintian
+
+      - name: Build deb package (${{ matrix.arch }})
+        run: bash build.sh ${{ matrix.arch }}
+
+      - name: Validate package
+        run: |
+          dpkg-deb -I build/output/wallloop_${{ matrix.arch }}.deb
+          dpkg-deb -c build/output/wallloop_${{ matrix.arch }}.deb | head -30
+          # Error-level lintian findings block the build, EXCEPT tags that are
+          # structural to TOS deb apps (guide ch.8 mandates /usr/local/<app_id>/)
+          # or inherent to the unmodified upstream musl static binary:
+          #   dir/file-in-usr-local    — TOS required install root
+          #   embedded-library         — symbols detected inside upstream binary
+          #   statically-linked-binary — upstream ships a musl static binary
+          lintian --info build/output/wallloop_${{ matrix.arch }}.deb || true
+          lintian --fail-on error \
+            --suppress-tags dir-in-usr-local,file-in-usr-local,embedded-library,statically-linked-binary \
+            build/output/wallloop_${{ matrix.arch }}.deb
+
+      - name: Generate checksums
+        run: |
+          cd build/output
+          sha256sum wallloop_${{ matrix.arch }}.deb > wallloop_${{ matrix.arch }}.deb.sha256
+          cat wallloop_${{ matrix.arch }}.deb.sha256
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-${{ matrix.arch }}
+          path: |
+            build/output/wallloop_${{ matrix.arch }}.deb
+            build/output/wallloop_${{ matrix.arch }}.deb.sha256
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            deb-x86_64/wallloop_x86_64.deb
+            deb-x86_64/wallloop_x86_64.deb.sha256
+            deb-aarch64/wallloop_aarch64.deb
+            deb-aarch64/wallloop_aarch64.deb.sha256
+          generate_release_notes: true

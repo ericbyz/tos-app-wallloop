@@ -1,0 +1,5 @@
+# Everything LF — DEBIAN scripts and shell files must never get CRLF
+# (Windows checkout with autocrlf would otherwise corrupt the packages)
+* text=auto eol=lf
+*.png binary
+*.deb binary

@@ -20,5 +20,5 @@ ASSET_x86_64=wallloop_0.1.0_linux_amd64.tar.gz
 ASSET_aarch64=wallloop_0.1.0_linux_arm64.tar.gz
 
 # SHA256 of each pinned asset (verified by fetch_upstream.sh)
-SHA256_x86_64=c88d9a7cba3b06c96f7526297eda770b829e7900c2fb5a3d3dda329499abcb7b
-SHA256_aarch64=5174ab75730cd0bf630a9e1e149666a40c41126b2d846a3f742ed753a93ef01e
+SHA256_x86_64=438d8c7569e2870d0a4b04c7e02416be058a654fcce118f788fb40c218bd3b10
+SHA256_aarch64=e2e1f901a6660cd198736775cbfec970a3f14ffe30666fcafd376fa8943b3b11

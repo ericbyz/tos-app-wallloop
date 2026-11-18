@@ -72,17 +72,17 @@ export UPSTREAM_DIST_DIR=Z:/business/company/twm/wallloop/dist   # 本地 dist(�
 
 ## VM 实测 checklist(TOS 7,169.254.104.128)
 
-- [ ] `/usr/bin/dpkg.real -i wallloop_x86_64.deb` 安装成功(postinst 建 wallloop 用户 + enable 服务)
-- [ ] `systemctl status wallloop` → active;`ss -tlnp | grep -E "18240|18241"` 两监听都在
-- [ ] 接线四件套(raw 安装时手动补;应用中心安装时平台自动做 init.d 拷贝):
+- [x] `/usr/bin/dpkg.real -i wallloop_x86_64.deb` 安装成功(postinst 建 wallloop 用户 + enable 服务)
+- [x] `systemctl status wallloop` → active;`ss -tlnp | grep -E "18240|18241"` 两监听都在
+- [x] 接线四件套(raw 安装时手动补;应用中心安装时平台自动做 init.d 拷贝):
       `systemctl enable --now wallloop` +
       `mkdir -p /usr/local/system_app_data/wallloop && cp config.ini wallloop.lang images/ 三件套` +
       `cp nginx/wallloop.conf /etc/nginx/conf.d/ && nginx -s reload` +
       `cp images/icons/wallloop.svg /usr/www/images/icons/`
-- [ ] 启动台图标点开 → 悬浮窗显示管理面板(iframe,`/wallloop/`)
-- [ ] 面板「演示壁纸生成」→ mandelbrot 5 秒 → 任务完成入库 → 出现在壁纸库
-- [ ] 上传一张图片/一段视频 → 缩略图出现 → 设为正在播放
-- [ ] 宿主机浏览器开 `http://169.254.104.128:18240/play` → 全屏播放器循环播放
-- [ ] `curl http://169.254.104.128:18240/api/v1/now` 返回当前壁纸 JSON;`POST upload` 到公开面 → 404
-- [ ] ffmpeg 实测为出厂自带:`/usr/bin/ffmpeg -version`
-- [ ] `dpkg -P wallloop` 卸载无残留(用户/服务/`/usr/local/wallloop`/`/var/lib/wallloop`)
+- [x] 启动台图标点开 → 悬浮窗显示管理面板(iframe,`/wallloop/`)
+- [x] 面板「演示壁纸生成」→ mandelbrot 5 秒 → 任务完成入库 → 出现在壁纸库
+- [x] 上传一张图片/一段视频 → 缩略图出现 → 设为正在播放
+- [x] 宿主机浏览器开 `http://169.254.104.128:18240/play` → 全屏播放器循环播放
+- [x] `curl http://169.254.104.128:18240/api/v1/now` 返回当前壁纸 JSON;`POST upload` 到公开面 → 404
+- [x] ffmpeg 实测为出厂自带:`/usr/bin/ffmpeg -version`
+- [x] `dpkg -P wallloop` 卸载无残留(用户/服务/`/usr/local/wallloop`/`/var/lib/wallloop`)
